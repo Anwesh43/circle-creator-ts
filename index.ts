@@ -11,6 +11,9 @@ const maxCircles : number = 5
 class DrawingUtil {
 
     static drawArc(context : CanvasRenderingContext2D, x : number, y : number, scale : number) {
+        context.lineCap = 'round'
+        context.lineWidth = Math.min(w, h) / strokeFactor
+        context.strokeStyle = foreColor
         const r : number = Math.min(w, h) / sizeFactor
         context.save()
         context.translate(x, y)
@@ -103,6 +106,10 @@ class Animator {
             clearInterval(this.interval)
         }
     }
+
+    shouldAnimate() {
+        return !this.animated
+    }
 }
 
 class CircleCreatorNode {
@@ -116,10 +123,11 @@ class CircleCreatorNode {
     }
 
     draw(context : CanvasRenderingContext2D) {
-        DrawingUtil.drawArc(context, this.x, this.y + (h - this.y) * this.state2.scale, this.state1.scale)
+        DrawingUtil.drawArc(context, this.x, this.y + (h - this.y + Math.min(w, h) / sizeFactor) * this.state2.scale, this.state1.scale)
     }
 
     sweep(cb : Function) {
+        console.log(this.state1.scale)
         this.state1.update(cb)
     }
 
@@ -154,6 +162,7 @@ class CircleCreatorContainer {
                 this.ccs.splice(0, 1)
                 this.curr.startSweeping(() => {
                     this.ccs.push(this.curr)
+                    this.first = null
                 })
             })
         } else {
@@ -168,6 +177,7 @@ class CircleCreatorContainer {
             this.first.startMoving(cb)
         } else {
             this.ccs.push(this.curr)
+            console.log(this.curr)
             this.curr.startSweeping(cb)
         }
     }
@@ -183,6 +193,18 @@ class Renderer {
     }
 
     handleTap(cb : Function, x : number, y : number) {
-        this.ccContainer.startUpdating(cb, x, y)
+        console.log(`${x}, ${y}`)
+        if (this.animator.shouldAnimate()) {
+
+            this.ccContainer.startUpdating(() => {
+                this.animator.start(() => {
+                    cb()
+                    this.ccContainer.update(() => {
+                        this.animator.stop()
+                        cb()
+                    })
+                })
+            }, x, y)
+        }
     }
 }
