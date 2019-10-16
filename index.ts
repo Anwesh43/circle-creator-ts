@@ -131,3 +131,40 @@ class CircleCreatorNode {
         this.state2.startUpdating(cb)
     }
 }
+
+class CircleCreatorContainer {
+
+    ccs : Array<CircleCreatorNode> = new Array()
+    curr : CircleCreatorNode
+    first : CircleCreatorNode
+
+    draw(context : CanvasRenderingContext2D) {
+        this.ccs.forEach((cc) => {
+            cc.draw(context)
+        })
+    }
+
+    update(cb : Function) {
+        if (this.first && this.first != null) {
+            this.first.move(() => {
+                this.ccs.splice(0, 1)
+                this.curr.startSweeping(() => {
+                    this.ccs.push(this.curr)
+                })
+            })
+        } else {
+            this.curr.sweep(cb)
+        }
+    }
+
+    startUpdating(cb : Function, x : number, y : number) {
+        this.curr = new CircleCreatorNode(x, y)
+        if (this.ccs.length == maxCircles) {
+            this.first = this.ccs[0]
+            this.first.startMoving(cb)
+        } else {
+            this.ccs.push(this.curr)
+            this.curr.startSweeping(cb)
+        }
+    }
+}
