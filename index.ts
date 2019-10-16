@@ -100,3 +100,34 @@ class Animator {
         }
     }
 }
+
+class CircleCreatorNode {
+
+    state1 : State = new State()
+
+    state2 : State = new State()
+
+    constructor(private x : number, private y : number) {
+
+    }
+
+    draw(context : CanvasRenderingContext2D) {
+        DrawingUtil.drawArc(context, this.x, this.y + (h - this.y) * this.state2.scale, this.state1.scale)
+    }
+
+    sweep(cb : Function) {
+        this.state1.update(cb)
+    }
+
+    move(cb : Function) {
+        this.state2.update(cb)
+    }
+
+    startSweeping(cb : Function) {
+        this.state1.startUpdating(cb)
+    }
+
+    startMoving(cb : Function) {
+        this.state2.startUpdating(cb)
+    }
+}
