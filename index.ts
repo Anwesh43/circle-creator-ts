@@ -30,6 +30,7 @@ class Stage {
 
     canvas : HTMLCanvasElement = document.createElement('canvas')
     context : CanvasRenderingContext2D
+    renderer : Renderer = new Renderer()
 
     initCanvas() {
         this.canvas.width = w
@@ -41,11 +42,14 @@ class Stage {
     render() {
         this.context.fillStyle = backColor
         this.context.fillRect(0, 0, w, h)
+        this.renderer.render(this.context)
     }
 
     handleTap() {
-        this.canvas.onmousedown = () => {
-
+        this.canvas.onmousedown = (event) => {
+            this.renderer.handleTap(() => {
+                this.render()
+            }, event.offsetX, event.offsetY)
         }
     }
 
@@ -166,5 +170,19 @@ class CircleCreatorContainer {
             this.ccs.push(this.curr)
             this.curr.startSweeping(cb)
         }
+    }
+}
+
+class Renderer {
+
+    ccContainer : CircleCreatorContainer = new CircleCreatorContainer()
+    animator : Animator = new Animator()
+
+    render(context : CanvasRenderingContext2D) {
+        this.ccContainer.draw(context)
+    }
+
+    handleTap(cb : Function, x : number, y : number) {
+        this.ccContainer.startUpdating(cb, x, y)
     }
 }
