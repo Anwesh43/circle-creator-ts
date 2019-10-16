@@ -2,11 +2,29 @@ const w : number = window.innerWidth
 const h : number = window.innerHeight
 const scGap : number = 0.02
 const strokeFactor : number = 90
-const sizeFactor : number = 2.9
+const sizeFactor : number = 8
 const foreColor : string = "#4CAF50"
 const backColor : string = "#BDBDBD"
 const delay : number = 30
 const maxCircles : number = 5
+
+class DrawingUtil {
+
+    static drawArc(context : CanvasRenderingContext2D, x : number, y : number, scale : number) {
+        const r : number = Math.min(w, h) / sizeFactor
+        context.save()
+        context.translate(x, y)
+        context.beginPath()
+        context.moveTo(r, 0)
+        for (var i = 0; i <= 360 * scale; i++) {
+            const xr : number = r * Math.cos(i * Math.PI / 180)
+            const yr : number = r * Math.sin(i * Math.PI / 180)
+            context.lineTo(xr, yr)
+        }
+        context.stroke()
+        context.restore()
+    }
+}
 
 class Stage {
 
